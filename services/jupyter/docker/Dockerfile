@@ -7,6 +7,8 @@ ARG MINICONDA_VERSION="4.5.12"
 ARG PYTHON_VERSION="3.6.8"
 ARG JUPYTER_VERSION
 ARG MINICONDA_BIN="https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh"
+ARG ART_URL="http://iguazio_ro:AP6zvYnUy6UqWtgfE7uidNWhFF5@artifactory.iguazeng.com:8081/artifactory"
+
 ENV PYTHONPATH "$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip"
 
 USER root
@@ -14,6 +16,7 @@ USER root
 ENV CONDA_HOME "/conda"
 ENV PATH=$CONDA_HOME/bin:$PATH
 ENV XDG_CACHE_HOME ${HOME}/.cache/
+ENV SPARK_3RD_PARTY "$SPARK_HOME/3rd_party"
 
 RUN set -x && \
     wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
@@ -107,6 +110,13 @@ RUN set -x && \
     conda clean -tipsy && \
     rm -rf ${HOME}/.cache && \
     rm -rf ${HOME}/.node-gyp && \
-    chown -R ${CONTAINER_USER}:${CONTAINER_USER} $CONDA_HOME
+    chown -R ${CONTAINER_USER}:${CONTAINER_USER} $CONDA_HOME && \
+    mkdir -p $SPARK_3RD_PARTY && cd $SPARK_3RD_PARTY && \
+    wget --quiet $ART_URL/iguazio_mvn/io/iguaz/apps/mssql-jdbc-7.2.1.jre8.jar && \
+    wget --quiet $ART_URL/iguazio_mvn/io/iguaz/apps/mysql-connector-java-8.0.13.jar && \
+    wget --quiet $ART_URL/iguazio_mvn/io/iguaz/apps/ojdbc8.jar && \
+    wget --quiet $ART_URL/iguazio_mvn/io/iguaz/apps/postgresql-42.2.5.jar && \
+    wget --quiet $ART_URL/iguazio_mvn/io/iguaz/apps/spark-redshift_2.10-3.0.0-preview1.jar && \
+    chown -R ${CONTAINER_USER}:${CONTAINER_USER} $SPARK_3RD_PARTY
 
 USER $CONTAINER_USER
