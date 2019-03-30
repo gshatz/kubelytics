@@ -16,7 +16,7 @@ ENV PATH $PATH:${SPARK_HOME}/bin
 ENV SPARK_3RD_PARTY "$SPARK_HOME/3rd_party"
 
 RUN set -x && \
-    mkdir $SPARK_HOME && \
+    mkdir $SPARK_HOME && cd $SPARK_HOME && \
     wget --quiet ${SPARK_BIN} && \
     tar xzf ${SPARK_BIN_NAME}.tgz && \
     rm -rf ${SPARK_BIN_NAME}.tgz && \
@@ -28,7 +28,13 @@ RUN set -x && \
     wget --quiet $S3_REPO_URL/ojdbc8.jar && \
     wget --quiet $S3_REPO_URL/postgresql-42.2.5.jar && \
     wget --quiet $S3_REPO_URL/spark-redshift_2.10-3.0.0-preview1.jar && \
+    cd $SPARK_HOME/jars/ && \
+    wget --quiet $S3_REPO_URL/asm-1.0-RC3.jar && \
+    wget --quiet $S3_REPO_URL/json-smart-2.0-RC3.jar && \
+    wget --quiet $S3_REPO_URL/jsonevent-layout-1.7.jar && \
     chown -R ${CONTAINER_USER}:${CONTAINER_USER} $SPARK_HOME
+
+COPY log4j.properties $SPARK_HOME/conf/log4j.properties
 
 ADD spark-master /
 ADD spark-worker /
